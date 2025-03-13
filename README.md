@@ -6,7 +6,8 @@ Welcome to the 2048 Game project! This is a simple implementation of the popular
 
 - [Introduction](#introduction)
 - [Features](#features)
-- [Installation](#installation)
+- [Deployment](#deployment)
+- [Local Setup](#local-setup)
 - [Usage](#usage)
 
 ## Introduction
@@ -19,7 +20,11 @@ Welcome to the 2048 Game project! This is a simple implementation of the popular
 - Simple and intuitive interface
 - Responsive design for desktop and mobile
 
-## Installation
+## Deployment
+
+The application is deployed on Render.com. You can access it at [https://two048-flask-game.onrender.com](https://two048-flask-game.onrender.com).
+
+## Local Setup
 
 To run this project locally, follow these steps:
 
@@ -37,7 +42,7 @@ To run this project locally, follow these steps:
   ```
 4. Run the Flask server:
   ```bash
-  python app.py
+  python server.py
   ```
 5. Open your web browser and go to `http://127.0.0.1:5000` to start the game.
 
