@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2048</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/gameover.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header role="banner">
+    <h1>2048</h1>
+    <div class="score-container">
+      <div id="score">Score: 0</div>
+      <button id="new-game">New Game</button>
+    </div>
+  </header>
+  <main class="game-container" role="main">
+    <div id="board" role="grid"></div>
+  </main>
+  
+  <!-- Updated Game Over Screen -->
+  <div id="game-over-screen" role="alertdialog" aria-labelledby="game-over-message">
+    <h1 id="game-over-message">Game Over!</h1>
+    <button id="new-game-over">New Game</button>
+  </div>
+  
+  <div id="win-screen" role="alertdialog" aria-labelledby="win-message">
+    <div>
+      <p id="win-message">You Win!</p>
+      <button id="continue-game">Continue</button>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const boardElement = document.getElementById("board");
+        const scoreElement = document.getElementById("score");
+        const newGameButton = document.getElementById("new-game");
+        const winScreen = document.getElementById("win-screen");
+        const continueGameButton = document.getElementById("continue-game");
+        const gameOverScreen = document.getElementById("game-over-screen");
+        const newGameOverButton = document.getElementById("new-game-over");
+  
+        function renderBoard(board) {
+            boardElement.innerHTML = "";
+            board.forEach(row => {
+                row.forEach(value => {
+                    const tile = document.createElement("div");
+                    tile.classList.add("tile");
+                    if (value !== 0) {
+                        tile.textContent = value;
+                        tile.setAttribute("data-value", value);
+                    }
+                    boardElement.appendChild(tile);
+                });
+            });
+        }
+  
+        function updateScore(score) {
+            scoreElement.textContent = `Score: ${score}`;
+        }
+  
+        function showWinScreen() {
+            winScreen.style.display = "flex";
+        }
+  
+        function showGameOverScreen() {
+            gameOverScreen.style.display = "flex";
+        }
+  
+        function fetchBoard() {
+            fetch("/new_game", { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    renderBoard(data.board);
+                    updateScore(data.score);
+                    winScreen.style.display = "none";
+                    gameOverScreen.style.display = "none";
+                });
+        }
+        
+        function move(direction) {
+            fetch("/move", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ direction })
+            })
+            .then(response => response.json())
+            .then(data => {
+                renderBoard(data.board);
+                updateScore(data.score);
+                if (data.win) {
+                    showWinScreen();
+                } else if (data.game_over) {
+                    showGameOverScreen();
+                }
+            });
+        }
+        
+        newGameButton.addEventListener("click", fetchBoard);
+        newGameOverButton.addEventListener("click", fetchBoard);
+        
+        continueGameButton.addEventListener("click", () => {
+            // Inform the server that the win has been acknowledged
+            fetch("/continue", { method: "POST" })
+              .then(response => response.json())
+              .then(() => {
+                  winScreen.style.display = "none";
+              });
+        });
+        
+        document.addEventListener("keydown", (event) => {
+            const moves = { "ArrowUp": "up", "ArrowDown": "down", "ArrowLeft": "left", "ArrowRight": "right" };
+            if (moves[event.key]) move(moves[event.key]);
+        });
+        
+        fetchBoard();
+    });
+  </script>  
+</body>
+</html>
